@@ -39,3 +39,13 @@ export function validWord(s,letter,used,dictionary){
  if(!dictionary.has(w))return 'Word not in the prototype dictionary.';
  return '';
 }
+
+export function replaceAcceptedWord(entries,index,draft,seed,golden,dictionary){
+ if(index<0||index>=seed.length)throw Error('Invalid word slot');
+ const candidate=normaliseWord(draft);
+ const used=new Set(entries.filter((_,i)=>i!==index).map(x=>x.word).filter(Boolean));
+ const issue=validWord(candidate,seed[index],used,dictionary);
+ if(issue)return {entries,issue};
+ const next=entries.map((entry,i)=>i===index?{word:candidate,points:scoreWord(candidate,golden)}:entry);
+ return {entries:next,issue:''};
+}

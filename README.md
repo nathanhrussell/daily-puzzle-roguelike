@@ -1,3 +1,7 @@
+## Golden Acrostic v0.2 playtest (provisional)
+
+All letters and editable word fields appear together; valid entries save automatically and may be replaced until timeout or voluntary finish. The active field uses a blue border and focus indicator; letter tiles are neutral. Word length and golden-letter contributions are shown during play and in results. The prototype dictionary now explicitly contains `ditzy` and `credences`; overall dictionary coverage/licensing and policy still require formal review. The 10/15 weights are experiments, not approved scoring. Other three games remain at v0.1.
+
 # Daily Puzzle Lab — four standalone browser prototypes
 
 Four independent, mobile-first puzzle experiments. **Prototype v0.1, not approved final rules**. No global scoring, daily lockout, leaderboards, account system or power-ups are implemented.
