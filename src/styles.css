@@ -24,3 +24,8 @@
 .words-mode .score-card{border-color:#4b7090;background:#14263d}
 .words-mode .score-card strong,.words-mode .score-card span,.words-mode .breakdown-row b,.words-mode .result-icon{color:#bedcf8}
 @media(max-width:420px){.words-mode .panel{padding:16px}.words-mode .word-row{grid-template-columns:37px minmax(0,1fr) 39px;gap:7px}.words-mode .word-letter{font-size:20px}.words-mode .word-input{padding:9px 10px;font-size:16px}.words-mode .word-status{font-size:10px}}
+
+/* v0.3 experiment scoring clarity */
+.score-model-tag { font-size:.84rem; opacity:.8; margin-top:.5rem; }
+.round-calculation { padding:1rem; border-top:1px solid var(--border, #bbb); margin-top:1rem; }
+.round-calculation p { margin:.5rem 0 0; overflow-wrap:anywhere; }

@@ -49,3 +49,28 @@ export function replaceAcceptedWord(entries,index,draft,seed,golden,dictionary){
  const next=entries.map((entry,i)=>i===index?{word:candidate,points:scoreWord(candidate,golden)}:entry);
  return {entries:next,issue:''};
 }
+
+
+// Golden Acrostic scoring experiments. These models are deliberately unapproved.
+export const WORD_SCORE_MODELS = Object.freeze({
+ fixed35: '35 points per golden letter',
+ global: 'Total golden letters × base score',
+ moderated: 'Base score × (1 + 0.5 × golden letters)',
+});
+export function scoreWordRound(entries, golden, model = 'global') {
+ if (!(model in WORD_SCORE_MODELS)) throw Error('Unknown word scoring model');
+ const words = entries.map(entry => typeof entry === 'string' ? entry : (entry?.word || ''));
+ const details=words.map(word => {
+   const w=word.toUpperCase();
+   if(w && !/^[A-Z]{3,20}$/.test(w))throw Error('Invalid accepted word');
+   const letters=w.length;
+   const gold=[...w].filter(c=>c===golden.toUpperCase()).length;
+   const base=letters*10;
+   return {word,letters,gold,base,points:model==='fixed35'?base+35*gold:base};
+ });
+ const base=details.reduce((n,w)=>n+w.base,0);
+ const gold=details.reduce((n,w)=>n+w.gold,0);
+ const multiplier=model==='global'?gold:model==='moderated'?1+gold*0.5:1;
+ const points=model==='fixed35'?details.reduce((n,w)=>n+w.points,0):Math.round(base*multiplier);
+ return {points,base,gold,multiplier,details,model};
+}

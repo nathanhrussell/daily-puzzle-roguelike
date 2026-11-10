@@ -63,3 +63,14 @@ GitHub does not need Actions enabled for this project. Tests are run on WSL befo
 ## Licensing / word-data note
 
 The word list is extracted from the installed `cmudict` Python package as a prototype aid. Review and preserve the upstream CMU Pronouncing Dictionary licence and source attribution before any distribution beyond internal prototyping. Replace with a properly licensed, editorially appropriate dictionary before production.
+
+
+## v0.3 — Golden Acrostic scoring experiments
+
+On the Words start screen, select one of three provisional scoring models.
+
+- **Fixed +35:** 10 points per letter + 35 per occurrence of the golden letter.
+- **Round-wide direct multiplier:** 10 points per letter across all words, multiplied by the total golden-letter count. No golden letters yields zero points.
+- **Moderated multiplier:** 10 points per letter across all words, multiplied by (1 + 0.5 × total golden-letter count).
+
+These rules are experiments, not approved final scoring. Other games remain unchanged. Player bests are stored separately per model. The dictionary is not editorially certified and contains proper names and unusual entries; do not treat algorithmic maximum scores as fair calibrated benchmarks.
