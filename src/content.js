@@ -1,8 +1,35 @@
 // Sample challenges are editorial fixtures, not a validated daily-content pipeline.
 export const wordRounds=[
- {seed:'CRANE',gold:'R'},
- {seed:'SPARK',gold:'A'},
- {seed:'BRIDGE',gold:'I'}
+ {seed:'LEMON',gold:'E'},
+ {seed:'ZEBRA',gold:'E'},
+ {seed:'JUDGE',gold:'E'},
+ {seed:'STORM',gold:'T'},
+ {seed:'PATCH',gold:'T'},
+ {seed:'KITES',gold:'T'},
+ {seed:'CRANE',gold:'A'},
+ {seed:'YACHT',gold:'A'},
+ {seed:'FLAME',gold:'A'},
+ {seed:'CLOUD',gold:'O'},
+ {seed:'ROBIN',gold:'O'},
+ {seed:'MOUSE',gold:'O'},
+ {seed:'BRICK',gold:'I'},
+ {seed:'NIGHT',gold:'I'},
+ {seed:'PIXEL',gold:'I'},
+ {seed:'PLANT',gold:'N'},
+ {seed:'HONEY',gold:'N'},
+ {seed:'SNACK',gold:'N'},
+ {seed:'SPARK',gold:'S'},
+ {seed:'GHOST',gold:'S'},
+ {seed:'MUSIC',gold:'S'},
+ {seed:'CHAIR',gold:'H'},
+ {seed:'WHALE',gold:'H'},
+ {seed:'THUMB',gold:'H'},
+ {seed:'GRAPE',gold:'R'},
+ {seed:'FROST',gold:'R'},
+ {seed:'RANCH',gold:'R'},
+ {seed:'DANCE',gold:'D'},
+ {seed:'WORLD',gold:'D'},
+ {seed:'BADGE',gold:'D'},
 ];
 export const numberRounds=[
  {question:'How many squares are there on a standard chessboard, counting only the smallest squares?',answer:64,unit:'squares',explain:'8 rows × 8 columns = 64.'},
@@ -20,3 +47,5 @@ export const rankingRounds=[
  {prompt:'Arrange these decades from earliest to latest.',items:['1980s','1950s','2000s','1970s','1990s'],correct:['1950s','1970s','1980s','1990s','2000s'],explain:'Chronological order.'}
 ];
 export const paths=['words','numbers','trivia','ranking'];
+// Fixed practice puzzle, deliberately outside the thirty daily combinations.
+export const practiceWordRound={seed:'TRACE',gold:'R'};

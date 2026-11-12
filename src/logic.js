@@ -3,8 +3,7 @@ export const acrosticLetters=(seed)=>[...seed.toUpperCase()];
 export function scoreWord(word, golden){
  const w=word.toUpperCase();
  if(!/^[A-Z]{3,20}$/.test(w))return 0;
- const gold=[...w].filter(c=>c===golden.toUpperCase()).length;
- return w.length*10+gold*15;
+ return w.length*10;
 }
 export function scoreEstimate(guess,actual){
  if(!Number.isFinite(guess)||guess<0||!Number.isFinite(actual)||actual<=0) return 0;
@@ -36,7 +35,7 @@ export function validWord(s,letter,used,dictionary){
  if(!/^[a-z]{3,20}$/.test(w))return 'Use a word of 3–20 letters (A–Z only).';
  if(w[0]!==letter.toLowerCase())return `This word must start with ${letter}.`;
  if(used.has(w))return 'You have already used that word.';
- if(!dictionary.has(w))return 'Word not in the prototype dictionary.';
+ if(!dictionary.has(w))return "We couldn't find that word in our dictionary.";
  return '';
 }
 
@@ -51,26 +50,19 @@ export function replaceAcceptedWord(entries,index,draft,seed,golden,dictionary){
 }
 
 
-// Golden Acrostic scoring experiments. These models are deliberately unapproved.
-export const WORD_SCORE_MODELS = Object.freeze({
- fixed35: '35 points per golden letter',
- global: 'Total golden letters × base score',
- moderated: 'Base score × (1 + 0.5 × golden letters)',
-});
-export function scoreWordRound(entries, golden, model = 'global') {
- if (!(model in WORD_SCORE_MODELS)) throw Error('Unknown word scoring model');
- const words = entries.map(entry => typeof entry === 'string' ? entry : (entry?.word || ''));
- const details=words.map(word => {
-   const w=word.toUpperCase();
-   if(w && !/^[A-Z]{3,20}$/.test(w))throw Error('Invalid accepted word');
-   const letters=w.length;
-   const gold=[...w].filter(c=>c===golden.toUpperCase()).length;
-   const base=letters*10;
-   return {word,letters,gold,base,points:model==='fixed35'?base+35*gold:base};
+// Golden Acrostic v0.4: the shared, deterministic round-wide multiplier.
+export function scoreWordRound(entries, golden) {
+ const words=entries.map(entry => typeof entry==='string'?entry:(entry?.word||''));
+ const details=words.map(word=>{
+  const w=word.toUpperCase();
+  if(w && !/^[A-Z]{3,20}$/.test(w))throw Error('Invalid accepted word');
+  const letters=w.length;
+  const gold=[...w].filter(c=>c===golden.toUpperCase()).length;
+  const base=letters*10;
+  return {word,letters,gold,base,points:base};
  });
- const base=details.reduce((n,w)=>n+w.base,0);
- const gold=details.reduce((n,w)=>n+w.gold,0);
- const multiplier=model==='global'?gold:model==='moderated'?1+gold*0.5:1;
- const points=model==='fixed35'?details.reduce((n,w)=>n+w.points,0):Math.round(base*multiplier);
- return {points,base,gold,multiplier,details,model};
+ const base=details.reduce((sum,w)=>sum+w.base,0);
+ const gold=details.reduce((sum,w)=>sum+w.gold,0);
+ const multiplier=1+gold;
+ return {points:base*multiplier,base,gold,multiplier,details};
 }

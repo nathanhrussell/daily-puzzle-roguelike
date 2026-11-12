@@ -1,0 +1,35 @@
+{
+  "version": "esdb-70-level4-ga-v1",
+  "source": "English Speller Database, 24 June 2026 revision",
+  "source_sha256": "4becfea1ed55ad5896128bf5eceac1920081a30ceeb422c6bbc6d3435321491f",
+  "source_entries": 173702,
+  "base_eligible": 132518,
+  "supplements": [
+    "bloggy",
+    "credences",
+    "petrichor"
+  ],
+  "exclusions": [
+    "chink",
+    "chinks",
+    "econ",
+    "faggot",
+    "faggots",
+    "fantom",
+    "kike",
+    "kikes",
+    "lupuserythematosus",
+    "metoo",
+    "nigger",
+    "niggers",
+    "nowhither",
+    "spic",
+    "spics",
+    "subj",
+    "terr"
+  ],
+  "word_count": 132504,
+  "dictionary_sha256": "8de10c9e271f3f8b94e6e57cede66f0e1a35fcc86035cd376b6a8b3d93933f11",
+  "filters": "Lowercase ASCII A-Z, 3\u201320 characters; manual supplements/exclusions",
+  "limitations": "Not a comprehensive offensive-vocabulary audit; the full lexicon has not been individually adjudicated."
+}

@@ -29,3 +29,54 @@
 .score-model-tag { font-size:.84rem; opacity:.8; margin-top:.5rem; }
 .round-calculation { padding:1rem; border-top:1px solid var(--border, #bbb); margin-top:1rem; }
 .round-calculation p { margin:.5rem 0 0; overflow-wrap:anywhere; }
+
+/* Golden Acrostic v0.4: neutral letter controls, blue interaction accents. */
+.words-mode button:focus-visible,.words-mode a:focus-visible,.words-mode select:focus-visible,.words-mode summary:focus-visible{outline:3px solid #86c7ff;outline-offset:3px}
+.words-mode .brand-mark{background:#274b67;color:#eaf7ff}
+.words-mode .eyebrow,.words-mode .card-cta{color:#bedcf8}
+.words-mode .words-intro p{line-height:1.65;color:#d4deec}
+.words-mode .word-example{margin:22px 0 0;padding:16px;border:1px solid #465b76;border-radius:12px;background:#112238;line-height:1.5}
+.words-mode .word-example p{font-size:14px;margin:8px 0}
+.words-mode .practice-options{border-top:1px solid #46546b;margin-top:22px;padding-top:18px;font-size:13px}
+.words-mode .practice-options summary{cursor:pointer;color:#bedcf8;font-weight:650;min-height:40px;display:flex;align-items:center}
+.words-mode .practice-options select{width:100%;margin-top:8px}
+.words-mode .practice-options label{display:block;margin-top:10px}
+.words-mode .practice-options p{font-size:12px;color:#aebfd4}
+.words-mode .suggest-word{border:0;background:transparent;color:#a5d4ff;text-decoration:underline;cursor:pointer;min-height:30px;padding:4px 0;text-align:left;font-size:12px}
+.words-mode .suggest-word[hidden]{display:none}
+.words-mode .suggest-feedback{font-size:11px;color:#cee8fb;line-height:1.5}
+.words-mode .live-calculation{margin:18px 0 5px;border:1px solid #465a73;border-radius:13px;background:#101e31;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.words-mode .live-calculation div{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+.words-mode .live-calculation span{color:#c2d0e3;font-size:12px}
+.words-mode .live-calculation strong{font-size:19px;font-variant-numeric:tabular-nums}
+.words-mode .live-calculation .score-total{grid-column:1/-1;border-top:1px solid #465a73;padding-top:12px}
+.words-mode .live-calculation .score-total strong{font-size:26px;color:#d2eaff}
+.words-mode .word-letter{background:#24334b;color:#fff;border:1px solid #64758f}
+.words-mode .word-status.invalid{color:#ffb4b2}
+.words-mode .word-input:focus-visible{outline:3px solid #86c7ff;outline-offset:2px}
+.words-mode .word-instructions{margin-bottom:15px}
+.words-mode .word-instructions p{font-size:13px}
+.words-mode .word-row{align-items:start}
+@media(max-width:430px){.words-mode .live-calculation{grid-template-columns:1fr}.words-mode .live-calculation .score-total{grid-column:1}.words-mode .word-points strong{font-size:15px}}
+@media(max-width:600px){
+ .words-mode .topbar{height:58px}
+ .words-mode .back-row{margin:12px 0}
+ .words-mode .play-header{margin-bottom:10px}
+ .words-mode .play-header h1{font-size:19px;margin-top:5px}
+ .words-mode .stats{display:none}
+ .words-mode .game-panel{padding:14px}
+ .words-mode .word-instructions{padding:12px;margin-bottom:12px}
+ .words-mode .word-instructions strong{font-size:15px}
+ .words-mode .word-instructions p{font-size:12px;line-height:1.4}
+ .words-mode .word-list{gap:8px}
+ .words-mode .word-status{margin-top:3px}
+ .words-mode .live-calculation{margin-top:12px}
+}
+
+/* Golden Acrostic v1.0 — daily and practice pathways */
+.words-mode .daily-start,.words-mode .practice-start{border-top:1px solid #46546b;margin-top:23px;padding-top:18px}
+.words-mode .daily-start h3,.words-mode .practice-start h3{font-size:16px;margin:0 0 8px}
+.words-mode .daily-start p,.words-mode .practice-start p{font-size:13px;color:#c6d6e8;line-height:1.6;margin:0 0 16px}
+.words-mode .word-instructions p+p{margin-top:9px}
+.words-mode .word-instructions{line-height:1.55}
+@media(min-width:601px){.words-mode .game-panel{max-width:800px}}

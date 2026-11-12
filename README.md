@@ -1,76 +1,51 @@
-## Golden Acrostic v0.2 playtest (provisional)
+# Golden Acrostic v1.0 — standalone playtest release
 
-All letters and editable word fields appear together; valid entries save automatically and may be replaced until timeout or voluntary finish. The active field uses a blue border and focus indicator; letter tiles are neutral. Word length and golden-letter contributions are shown during play and in results. The prototype dictionary now explicitly contains `ditzy` and `credences`; overall dictionary coverage/licensing and policy still require formal review. The 10/15 weights are experiments, not approved scoring. Other three games remain at v0.1.
+**Status:** Playtest candidate, awaiting the final user sign-off checklist. Golden Acrostic is fully playable standalone and prepared to return structured results for possible integration into the four-game Daily Puzzle Roguelike. The other three games are unchanged experimental previews under `#/numbers`, `#/trivia` and `#/ranking`; open `#/collection` for their index.
 
-# Daily Puzzle Lab — four standalone browser prototypes
+## Run locally
 
-Four independent, mobile-first puzzle experiments. **Prototype v0.1, not approved final rules**. No global scoring, daily lockout, leaderboards, account system or power-ups are implemented.
-
-## Start on Windows 11 / WSL
-
-1. Install Node.js 20+ in WSL (22 LTS recommended). Run `node -v`.
-2. From WSL, navigate to this repository (prefer `~/projects/` rather than `/mnt/c/`):
-   ```bash
-   cd ~/projects/daily-puzzle-prototypes
-   npm run dev
-   ```
-3. Open `http://localhost:5173` on Windows. For phone testing on the same Wi-Fi network, use your computer's reachable IP and port 5173 (Windows Firewall/WSL networking may need configuration). Browser device emulation is useful but not a substitute for phone testing.
-4. Run `npm test` for built-in automated tests. No `npm install`, dependencies or GitHub Actions required.
-
-## Repo
-
-- `index.html`: browser entry
-- `src/app.js`: standalone route/state/UI implementation
-- `src/content.js`: deterministic sample challenge fixtures
-- `src/logic.js`: testable scoring and validation functions
-- `src/styles.css`: responsive mobile-first UI, accessible controls, reduced-motion handling
-- `data/dictionary.json`: prototype-only CMU-derived dictionary (see caveats)
-- `tests/logic.test.js`: Node's built-in test runner
-- `server.mjs`: dependency-free local server
-
-## Current mechanics (provisional)
-
-- **Golden Acrostic:** five-letter seeds for two fixtures, a six-letter comparison fixture, one English word per starting letter, 10 points per letter plus 15 per golden-letter occurrence. Validated against a bundled CMU-derived word list. This list is **not a publication-ready word authority**: it may admit names and rare terms and reject legitimate inflections. No definition, proper-noun filtering or profanity screening is supplied. Test 5 vs 6 before locking rules.
-- **Precision Pursuit:** three numerical estimates. 1,000 points per exact answer; exponentially decreasing credit for relative error. Not calibrated for difficulty or unequal numerical scales. Each estimate uses a reveal screen.
-- **Answer Allocation:** match three prompts to three unique answers, 1,000 total points distributed equally. This is a provisional interpretation of the game name and must be reviewed against the governing documents.
-- **Perfect Order:** order five items using accessible up/down buttons. 700 points based on total displacement and 300 additional points for perfection. Not calibrated against chance or task difficulty.
-
-Time-based mode is 90 seconds by default; also offers 120 seconds and untimed mode. Scores are stored locally only as best-per-game values. The current numbers fixture uses three questions in a single timed session; the other games use a single fixture per session.
-
-## Known validation gates before integration
-
-1. Recover and reconcile the two approved project governance documents. The new project documents were not accessible while creating this package; do not claim that the rules here implement their exact decisions.
-2. Assess fun, clarity, mobile friction, timing, 5 vs 6 letters, dictionary appropriateness, numeric difficulty/feedback, unique allocation, ranking partial credit.
-3. Verify scoring fairness using simulated play and user testing; remove obvious optimal strategies.
-4. Curate daily content, document provenance and unambiguous answers, build robust validation and consider server-issued daily content only after individual prototypes pass.
-5. Only then design a unified daily run, multiplier, power-ups and sharing.
-
-## GitHub setup (manual, no CI)
+Requirements: Node.js 20+; no npm installation needed (no runtime dependencies).
 
 ```bash
-cd ~/projects/daily-puzzle-prototypes
-git init
-git add .
-git commit -m "Add standalone puzzle prototypes v0.1"
-# Create a blank GitHub repository in your browser, then:
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/daily-puzzle-prototypes.git
-git push -u origin main
+npm test
+npm run dev
 ```
 
-GitHub does not need Actions enabled for this project. Tests are run on WSL before commits.
+Open **http://localhost:5173**. The landing page is Golden Acrostic. If the browser opens an old route, use `http://localhost:5173/#/words`.
 
-## Licensing / word-data note
+Do not open `index.html` directly from the file system because browser `fetch` needs the local server.
 
-The word list is extracted from the installed `cmudict` Python package as a prototype aid. Review and preserve the upstream CMU Pronouncing Dictionary licence and source attribution before any distribution beyond internal prototyping. Replace with a properly licensed, editorially appropriate dictionary before production.
+## How to play
 
+Find one valid English word beginning with each of the five starting letters, in 90 seconds. All five fields remain editable throughout; a failed edit leaves the previous valid word in place. Minimum 3, maximum 20 ASCII letters. Exact duplicates within a round are rejected. Each accepted letter earns ten points; every occurrence of the golden letter across the five accepted words increases a round-wide multiplier, starting from ×1.
 
-## v0.3 — Golden Acrostic scoring experiments
+Score = `10 × accepted letter count × (1 + golden-letter occurrences)`.
 
-On the Words start screen, select one of three provisional scoring models.
+The **daily challenge** uses one of thirty approved seed and golden-letter pairs, deterministically selected by UTC date. Every player on the same UTC day receives the same pair. **Starting the daily round commits the day's one scored attempt** in browser local storage. Accepted words are saved immediately. Refreshing or closing the page does not reset the 90-second deadline; a resumed round uses the original deadline, and a completed/expired round shows its result. A new UTC day allows a new attempt. Early finishing ends the scored attempt. The **practice** round uses `TRACE` + golden letter `R` (outside the daily catalogue) and can be repeated without affecting daily attempts.
 
-- **Fixed +35:** 10 points per letter + 35 per occurrence of the golden letter.
-- **Round-wide direct multiplier:** 10 points per letter across all words, multiplied by the total golden-letter count. No golden letters yields zero points.
-- **Moderated multiplier:** 10 points per letter across all words, multiplied by (1 + 0.5 × total golden-letter count).
+**Limitations of local-only daily enforcement:** The one-attempt restriction applies to the same browser profile with site storage enabled. It cannot prevent players from clearing storage, using a different browser/device, or changing their device clock. There are no accounts, server-side results or leaderboards. Daily attempts cannot be verified globally; this is intentionally deferred until a possible combined daily release. Day boundaries are **00:00 UTC**, not local midnight.
 
-These rules are experiments, not approved final scoring. Other games remain unchanged. Player bests are stored separately per model. The dictionary is not editorially certified and contains proper names and unusual entries; do not treat algorithmic maximum scores as fair calibrated benchmarks.
+## Dictionary
+
+`data/dictionary.json` is generated from the **user-provided English Speller Database (ESDB) Size 70 / Variant Level 4 / American and two British conventions / UTF-8, both diacritic forms** export, revision 24 June 2026. The rule set accepts only lowercase ASCII A–Z words 3–20 characters long, with three documented supplementary words and a limited exact-word exclusion list. The ESDB source archive and copyright/permission notices are included under `vendor/esdb-level4/`.
+
+To rebuild and verify the SHA-256 checksum:
+
+```bash
+python3 scripts/build_esdb.py
+npm test
+```
+
+The version and checksums are recorded in `data/dictionary_manifest.json`. The generator uses the standard Python library only. The ESDB README and notices must remain with redistributed derivatives.
+
+**Not certified:** The list has passed targeted acceptance/rejection checks and the reported false-rejection regressions, but it is not exhaustive. Some legitimate words may still be missing, and inappropriate or unusual forms may still remain. The exclusion list is a limited reviewed set, not a comprehensive offensive-language audit. A new dictionary version may change how previously saved words are validated on resume; production-grade permanent results would require durable scoring snapshots and/or a backend. No “Suggest a word” control is present.
+
+## Standalone integration boundary
+
+`src/logic.js` contains deterministic scoring independent of the interface; `src/daily.js` contains local-only daily-state helpers and a `buildWordResult(...)` contract. The result object has schema `golden-acrostic-result/v1` with accepted words, seed, golden letter, base points, multiplier, total score, completion reason, timestamps and dictionary version. The existing UI computes this result upon finishing. No shared roguelike scoring, power-ups or cross-game multipliers are implemented; the single-game score is unchanged.
+
+## Testing and v1.0 checklist
+
+Run `npm test` before playtesting. The tests cover scoring, word validation, source-dictionary hashes, reported omissions, reviewed exclusions, the thirty challenges, practice isolation, persisted daily state and the integration result schema. A **manual** sign-off is still required for responsive layout, keyboard/tab flow, timer/early finish, refresh-and-resume, completed-result display, mobile touch controls and general enjoyability. Automated tests do not fully simulate browser interaction.
+
+Other three games are preserved as experimental prototypes only. Their scoring rules are not certified or balanced against Golden Acrostic, and future combined daily content is out of scope.

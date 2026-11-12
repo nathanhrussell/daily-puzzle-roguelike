@@ -9,12 +9,12 @@ test('previous accepted word survives invalid edit',()=>{
  assert.ok(issue);assert.equal(entries,original);assert.equal(entries[0].word,'crane');
 });
 test('valid replacement updates only chosen slot and its points',()=>{
- const original=[{word:'cat',points:30},{word:'rose',points:55}];
+ const original=[{word:'cat',points:30},{word:'rose',points:40}];
  const {entries,issue}=replaceAcceptedWord(original,0,'crater','CR','R',dictionary);
- assert.equal(issue,'');assert.equal(entries[0].points,90);assert.deepEqual(entries[1],original[1]);
+ assert.equal(issue,'');assert.equal(entries[0].points,60);assert.deepEqual(entries[1],original[1]);
 });
 test('another slot cannot reuse a saved word',()=>{
- const original=[{word:'crane',points:65},{word:'',points:0}];
+ const original=[{word:'crane',points:50},{word:'',points:0}];
  const r=replaceAcceptedWord(original,1,'crane','CR','R',dictionary);
  assert.ok(r.issue);assert.equal(r.entries,original);
 });
