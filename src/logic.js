@@ -32,11 +32,16 @@ export function evaluateAllocation(answers,correct){
 export function normaliseWord(s){return s.trim().toLowerCase();}
 export function validWord(s,letter,used,dictionary){
  const w=normaliseWord(s);
- if(!/^[a-z]{3,20}$/.test(w))return 'Use a word of 3–20 letters (A–Z only).';
+ if(!/^[a-z]{3,20}$/.test(w))return 'Enter a word with 3–20 letters (A–Z only).';
  if(w[0]!==letter.toLowerCase())return `This word must start with ${letter}.`;
  if(used.has(w))return 'You have already used that word.';
  if(!dictionary.has(w))return "We couldn't find that word in our dictionary.";
  return '';
+}
+
+export function goldenLetterCountLabel(count,letter){
+ if(!Number.isInteger(count)||count<0||!/^[A-Z]$/.test(letter))throw Error('Invalid golden letter count');
+ return `${count} golden ${letter}${count===1?'':'s'}`;
 }
 
 export function replaceAcceptedWord(entries,index,draft,seed,golden,dictionary){

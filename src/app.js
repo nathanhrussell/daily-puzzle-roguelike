@@ -1,5 +1,5 @@
 import {wordRounds,numberRounds,allocationRounds,rankingRounds,paths} from './content.js';
-import {scoreWord,scoreEstimate,estimateLabel,scoreRanking,evaluateAllocation,normaliseWord,validWord,replaceAcceptedWord,scoreWordRound} from './logic.js';
+import {scoreWord,scoreEstimate,estimateLabel,scoreRanking,evaluateAllocation,normaliseWord,validWord,replaceAcceptedWord,scoreWordRound,goldenLetterCountLabel} from './logic.js';
 import {utcDay,challengeIndex,freshDaily,loadDaily,saveDaily,remainingSeconds,markFinished,buildWordResult} from './daily.js';
 import {practiceWordRound} from './content.js';
 const app=document.querySelector('#app');
@@ -92,7 +92,7 @@ function wordsUI(){
  if(!session.words.length)session.words=[...item.seed].map(()=>({word:'',points:0}));
  const result=wordScore();
  const wordsCount=session.words.filter(x=>x.word).length;
- roundFrame(`<div class="word-instructions"><strong>Find the highest-scoring words you can.</strong><p>Write one word beginning with each letter — the longer the better.</p><p>${wordRuleText(item.gold)}</p><p>You can improve your words until the clock runs out.</p></div><div class="word-list" aria-label="Your five words">${[...item.seed].map((letter,i)=>{const entry=wordEntry(i),detail=result.details[i];return `<div class="word-row" data-word-row="${i}"><label for="word-${i}" class="word-letter">${escapeHtml(letter)}</label><div class="word-control"><input id="word-${i}" class="word-input" type="text" inputmode="text" minlength="3" maxlength="20" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="Word beginning with ${letter}…" value="${escapeHtml(entry.word)}" aria-describedby="word-status-${i}"><div id="word-status-${i}" class="word-status" role="status">${entry.word?`${detail.letters} letters · ${detail.gold} golden ${escapeHtml(item.gold)}`:'No word saved yet'}</div></div><div class="word-points"><strong id="word-points-${i}">${detail.base}</strong><small>base</small></div></div>`;}).join('')}</div><div class="live-calculation" aria-live="off"><div><span>Base points</span><strong id="base-total">${result.base.toLocaleString('en-GB')}</strong></div><div><span>Golden letters</span><strong id="gold-count">${result.gold}</strong></div><div><span>Multiplier</span><strong id="gold-multiplier">×${result.multiplier}</strong></div><div class="score-total"><span>Total score</span><strong id="total-word-score">${result.points.toLocaleString('en-GB')}</strong></div></div><button class="secondary full" id="finish-words">Finish round</button><p class="hint">You can keep improving your words, or finish early. Previously accepted words still count if a replacement isn't recognised.</p>`);
+ roundFrame(`<div class="word-instructions"><strong>Find the highest-scoring words you can.</strong><p>Write one word beginning with each letter — the longer the better.</p><p>${wordRuleText(item.gold)}</p><p>You can improve your words until the clock runs out.</p></div><div class="word-list" aria-label="Your five words">${[...item.seed].map((letter,i)=>{const entry=wordEntry(i),detail=result.details[i];return `<div class="word-row" data-word-row="${i}"><label for="word-${i}" class="word-letter">${escapeHtml(letter)}</label><div class="word-control"><input id="word-${i}" class="word-input" type="text" inputmode="text" minlength="3" maxlength="20" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="Word beginning with ${letter}…" value="${escapeHtml(entry.word)}" aria-describedby="word-status-${i}"><div id="word-status-${i}" class="word-status" role="status">${entry.word?`${detail.letters} letters · ${goldenLetterCountLabel(detail.gold,item.gold)}`:'No word saved yet'}</div></div><div class="word-points"><strong id="word-points-${i}">${detail.base}</strong><small>base</small></div></div>`;}).join('')}</div><div class="live-calculation" aria-live="off"><div><span>Base points</span><strong id="base-total">${result.base.toLocaleString('en-GB')}</strong></div><div><span>Golden letters</span><strong id="gold-count">${result.gold}</strong></div><div><span>Multiplier</span><strong id="gold-multiplier">×${result.multiplier}</strong></div><div class="score-total"><span>Total score</span><strong id="total-word-score">${result.points.toLocaleString('en-GB')}</strong></div></div><button class="secondary full" id="finish-words">Finish round</button><p class="hint">You can keep improving your words, or finish early. Previously accepted words still count if a replacement isn't recognised.</p>`);
  [...item.seed].forEach((letter,i)=>{
   const field=el(`word-${i}`);
   field.addEventListener('input',()=>updateWord(i,field));
@@ -119,7 +119,7 @@ function updateWord(i,input){
  if(!persistDaily()){updateWordStatus(i,"Could not save your daily entry. Check browser storage.",true);return;}
  const result=wordScore();session.points=result.points;
  const detail=result.details[i];
- updateWordStatus(i,`Saved · ${detail.letters} letters = ${detail.base} base points · ${detail.gold} golden ${item.gold}`,false);
+ updateWordStatus(i,`Saved · ${detail.letters} letters = ${detail.base} base points · ${goldenLetterCountLabel(detail.gold,item.gold)}`,false);
  el(`word-points-${i}`).textContent=detail.base;
  el('live-score').textContent=session.points.toLocaleString('en-GB');
  el('base-total').textContent=result.base.toLocaleString('en-GB');
@@ -146,7 +146,7 @@ if(s.mode==='words')s.points=wordScore().points;const bestKey=`puzzle-lab:${s.mo
     words:s.words.map(e=>e.word),score,startedAt:s.started,finishedAt:dailyRecord?.finishedAt||Date.now(),reason,
     dictionaryVersion:dictionaryManifest.version});
   const result=wordScore();
-  breakdown=result.details.map((x,i)=>`<div class="breakdown-row word-result-row"><span><strong>${escapeHtml(currentItem().seed[i])} — ${escapeHtml(x.word)||'No word'}</strong><small>${x.letters} letters × 10 = ${x.base} base points · ${x.gold} golden ${escapeHtml(currentItem().gold)}</small></span><b>${x.base} base</b></div>`).join('');
+  breakdown=result.details.map((x,i)=>`<div class="breakdown-row word-result-row"><span><strong>${escapeHtml(currentItem().seed[i])} — ${escapeHtml(x.word)||'No word'}</strong><small>${x.letters} letters × 10 = ${x.base} base points · ${goldenLetterCountLabel(x.gold,currentItem().gold)}</small></span><b>${x.base} base</b></div>`).join('');
   breakdown+=`<div class="round-calculation"><strong>Final calculation</strong><p>${result.base/10} letters × 10 = ${result.base} base points</p><p>Golden letter ${escapeHtml(currentItem().gold)} used ${result.gold} times → multiplier ×${result.multiplier}</p><strong>${result.base.toLocaleString('en-GB')} × ${result.multiplier} = ${result.points.toLocaleString('en-GB')} points</strong></div>`;
  }
 
