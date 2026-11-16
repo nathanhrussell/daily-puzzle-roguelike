@@ -2,6 +2,8 @@ import {wordRounds,numberRounds,allocationRounds,rankingRounds,paths} from './co
 import {scoreWord,scoreEstimate,estimateLabel,scoreRanking,evaluateAllocation,normaliseWord,validWord,replaceAcceptedWord,scoreWordRound,goldenLetterCountLabel} from './logic.js';
 import {utcDay,challengeIndex,freshDaily,loadDaily,saveDaily,remainingSeconds,markFinished,buildWordResult} from './daily.js';
 import {practiceWordRound} from './content.js';
+import {precisionRounds} from './precision-content.js';
+import {scorePrecisionEstimate,parsePrecisionGuess,buildPrecisionResult} from './precision-logic.js';
 const app=document.querySelector('#app');
 let dictionary=new Set(),blockedWords=new Set(),dictionaryManifest={},timer=null,session=null,dailyRecord=null;
 const labels={words:'Golden Acrostic',numbers:'Precision Pursuit',trivia:'Answer Allocation',ranking:'Perfect Order'};
@@ -11,7 +13,7 @@ const escapeHtml=(x)=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','
 const el=(id)=>document.getElementById(id);
 const selectedPath=()=>location.hash.replace('#/','').split('/')[0];
 function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
-function currentItem(){return session.mode==='words'?(session.attemptMode==='practice'?practiceWordRound:wordRounds[session.fixture]):({numbers:numberRounds,trivia:allocationRounds,ranking:rankingRounds})[session.mode][session.fixture];}
+function currentItem(){return session.mode==='words'?(session.attemptMode==='practice'?practiceWordRound:wordRounds[session.fixture]):({numbers:precisionRounds,trivia:allocationRounds,ranking:rankingRounds})[session.mode][session.fixture];}
 function shell(content){const wordMode=session?.mode==='words'||selectedPath()==='words'||!selectedPath();app.innerHTML=`<div class="app-shell ${wordMode?'words-mode':''}"><header class="topbar"><a class="brand" href="#/words" aria-label="Golden Acrostic home"><span class="brand-mark">✳</span><span>${wordMode?'GOLDEN<span class="brand-muted">/ACROSTIC</span>':'PUZZLE<span class="brand-muted">/LAB</span>'}</span></a><span class="top-chip">${wordMode?'DAILY WORD GAME':'GAME COLLECTION'}</span></header><main>${content}</main><footer>Daily Puzzle Roguelike · Golden Acrostic · v1.0</footer></div>`;}
 function home(){stopTimer();session=null;const cards=paths.map((id,i)=>`<a class="game-card" href="#/${id}"><div class="card-top"><span class="game-glyph glyph-${id}">${icons[id]}</span><span class="card-num">0${i+1} / 04</span></div><h2>${labels[id]}</h2><p>${subtitles[id]}</p><div class="card-cta">${id==='words'?'Play Golden Acrostic':'Explore game'} <span aria-hidden="true">↗</span></div></a>`).join('');shell(`<section class="hero"><div class="eyebrow"><span class="dot"></span> GAME DESIGN LABORATORY</div><h1>Four games.<br><em>One big idea.</em></h1><p>Play each puzzle independently. Test the mechanics before they become one daily run.</p></section><section class="card-grid" aria-label="Choose a prototype">${cards}</section><section class="info-panel"><span class="info-star">✦</span><div><strong>Designed for honest testing</strong><p>Every game has its own rules, sample puzzles and result screen. No power-ups or combined multiplier yet.</p></div></section>`);}
 function getDailyRecord() {
@@ -40,7 +42,10 @@ function startTicker() {
  stopTimer();
  timer=setInterval(()=>{
   if(!session||session.done)return;
-  let left=session.mode==='words'&&session.attemptMode==='daily' ? remainingSeconds(dailyRecord) : Math.max(0,session.duration-Math.floor((Date.now()-session.started)/1000));
+  let left=session.mode==='words'&&session.attemptMode==='daily' ? remainingSeconds(dailyRecord) :
+   session.mode==='numbers' ? Math.max(0,Math.ceil((session.deadline-Date.now())/1000)) :
+   Math.max(0,session.duration-Math.floor((Date.now()-session.started)/1000));
+  if(session.mode==='numbers')session.remainingMs=Math.max(0,session.deadline-Date.now());
   session.left=left;
   const clock=el('clock');if(clock){clock.textContent=`${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`;clock.classList.toggle('urgent',left<=15);}
   if(!left)finish("Time's up!");
@@ -73,16 +78,16 @@ function wordsStart(){
 function startScreen(mode){
  if(mode==='words')return wordsStart();
  stopTimer();session=null;
- const descriptions={numbers:'Estimate three quantities. The closer you get, the more points you earn. You will see the correct answer and your error after each guess.',trivia:'Match three answers to three prompts. Each answer can be used only once. Correct matches earn points.',ranking:'Put five items in order. Move them up and down, then submit. Near misses earn partial credit.'};
- shell(`<div class="back-row"><a href="#/" class="back-link">← All games</a></div><section class="intro"><span class="game-glyph big glyph-${mode}">${icons[mode]}</span><div class="eyebrow">STANDALONE PROTOTYPE</div><h1>${labels[mode]}</h1><p>${subtitles[mode]}</p></section><section class="panel"><h2>How to play</h2><p>${descriptions[mode]}</p><div class="setting-row"><label for="fixture">Sample challenge</label><select id="fixture"><option value="0">Challenge 1</option><option value="1">Challenge 2</option><option value="2">Challenge 3</option></select></div><div class="setting-row"><label for="timing">Round timer</label><select id="timing"><option value="90">90 seconds (test baseline)</option><option value="0">Untimed (mechanics testing)</option><option value="120">120 seconds</option></select></div><button class="primary full" id="begin">Start game <span>→</span></button><div class="fineprint">Sample content and scores are experimental, not final daily-game rules.</div></section>`);
+ const descriptions={numbers:'Estimate three quantities. The closer your answer, the more points you earn. Read the guidance, enter a number and see the correct answer after each guess. The 90-second clock pauses during reveals.',trivia:'Match three answers to three prompts. Each answer can be used only once. Correct matches earn points.',ranking:'Put five items in order. Move them up and down, then submit. Near misses earn partial credit.'};
+ shell(`<div class="back-row"><a href="#/" class="back-link">← All games</a></div><section class="intro"><span class="game-glyph big glyph-${mode}">${icons[mode]}</span><div class="eyebrow">STANDALONE PROTOTYPE</div><h1>${labels[mode]}</h1><p>${subtitles[mode]}</p></section><section class="panel"><h2>How to play</h2><p>${descriptions[mode]}</p><div class="setting-row"><label for="fixture">Sample challenge</label><select id="fixture"><option value="0">Challenge 1</option><option value="1">Challenge 2</option><option value="2">Challenge 3</option>${mode==='numbers'?'<option value="3">Challenge 4</option><option value="4">Challenge 5</option><option value="5">Challenge 6</option>':''}</select></div><div class="setting-row"><label for="timing">Round timer</label><select id="timing"><option value="90">90 seconds (test baseline)</option><option value="0">Untimed (mechanics testing)</option><option value="120">120 seconds</option></select></div><button class="primary full" id="begin">Start game <span>→</span></button><div class="fineprint">Sample content and scores are experimental, not final daily-game rules.</div></section>`);
  el('begin').onclick=()=>begin(mode,Number(el('fixture').value),Number(el('timing').value));
 }
 function begin(mode,fixture,duration,scoreModel=null,attemptMode=null){
  stopTimer();
- session={mode,attemptMode,fixture,duration,scoreModel,left:duration,started:Date.now(),points:0,steps:[],done:false,words:[],index:0,selections:{},order:[],locked:false};
+ session={mode,attemptMode,fixture,duration,scoreModel,left:duration,remainingMs:duration*1000,started:Date.now(),deadline:Date.now()+duration*1000,points:0,steps:[],done:false,words:[],index:0,selections:{},order:[],locked:false};
  renderRound();if(duration)startTicker();
 }
-function roundFrame(inner){let s=session;const progress=s.mode==='words'?`${s.words.filter(x=>x.word).length} / ${currentItem().seed.length} filled`:s.mode==='numbers'?`${s.index+1} / ${numberRounds.length}`:'1 / 1';const clock=s.duration?`<span id="clock" class="timer" aria-live="off">${Math.floor(s.left/60)}:${String(s.left%60).padStart(2,'0')}</span>`:`<span class="timer unlimited">UNTIMED</span>`;shell(`<div class="back-row"><a href="#/${s.mode}" class="back-link" id="leave">← Exit game</a><span class="back-note">${s.mode==='words'?(s.attemptMode==='practice'?'PRACTICE':'DAILY CHALLENGE'):`CHALLENGE ${s.fixture+1}`}</span></div><section class="play-header"><div><div class="eyebrow">${labels[s.mode].toUpperCase()}</div><h1>${subtitles[s.mode]}</h1></div>${clock}</section><div class="stats"><div><small>POINTS</small><strong id="live-score">${s.points.toLocaleString('en-GB')}</strong></div><div><small>PROGRESS</small><strong id="live-progress">${progress}</strong></div></div><section class="panel game-panel">${inner}</section>`);el('leave').onclick=(e)=>{if(s.mode==='words'&&s.attemptMode==='daily')return; if(!confirm('Leave this attempt? Your progress will be lost.'))e.preventDefault();};}
+function roundFrame(inner){let s=session;const progress=s.mode==='words'?`${s.words.filter(x=>x.word).length} / ${currentItem().seed.length} filled`:s.mode==='numbers'?`${Math.min(s.index+1,precisionRounds[s.fixture].length)} / ${precisionRounds[s.fixture].length}`:'1 / 1';const clock=s.duration?`<span id="clock" class="timer" aria-live="off">${Math.floor(s.left/60)}:${String(s.left%60).padStart(2,'0')}</span>`:`<span class="timer unlimited">UNTIMED</span>`;shell(`<div class="back-row"><a href="#/${s.mode}" class="back-link" id="leave">← Exit game</a><span class="back-note">${s.mode==='words'?(s.attemptMode==='practice'?'PRACTICE':'DAILY CHALLENGE'):`CHALLENGE ${s.fixture+1}`}</span></div><section class="play-header"><div><div class="eyebrow">${labels[s.mode].toUpperCase()}</div><h1>${subtitles[s.mode]}</h1></div>${clock}</section><div class="stats"><div><small>POINTS</small><strong id="live-score">${s.points.toLocaleString('en-GB')}</strong></div><div><small>PROGRESS</small><strong id="live-progress">${progress}</strong></div></div><section class="panel game-panel">${inner}</section>`);el('leave').onclick=(e)=>{if(s.mode==='words'&&s.attemptMode==='daily')return; if(!confirm('Leave this attempt? Your progress will be lost.'))e.preventDefault();};}
 function renderRound(){if(!session||session.done)return;switch(session.mode){case 'words':return wordsUI();case 'numbers':return numbersUI();case 'trivia':return triviaUI();case 'ranking':return rankingUI();}}
 function wordEntry(i){return session.words[i] || {word:'',points:0};}
 function wordScore(){return scoreWordRound(session.words,currentItem().gold);}
@@ -129,8 +134,47 @@ function updateWord(i,input){
  el('live-progress').textContent=`${session.words.filter(x=>x.word).length} / ${item.seed.length} filled`;
 }
 
-function numbersUI(){const item=numberRounds[session.index];roundFrame(`<div class="eyebrow">ESTIMATE ${session.index+1} OF ${numberRounds.length}</div><h2 class="question">${item.question}</h2><form id="estimate-form"><label for="guess" class="field-label">Your estimate (${item.unit})</label><input type="number" inputmode="decimal" min="0" step="any" id="guess" placeholder="Enter a number" required><div id="estimate-error" class="validation" role="alert"></div><button class="primary full" type="submit">Lock in estimate <span>→</span></button></form><div class="hint">Exact answer = 1,000 points. Points fall as percentage error increases.</div>`);el('guess').focus();el('estimate-form').onsubmit=e=>{e.preventDefault();const guess=Number(el('guess').value);if(!Number.isFinite(guess)||guess<0){el('estimate-error').textContent='Enter a number of zero or more.';return;}const points=scoreEstimate(guess,item.answer);session.points+=points;session.steps.push({label:item.question,guess,actual:item.answer,points});showEstimate(points,item,guess);};}
-function showEstimate(points,item,guess){roundFrame(`<div class="eyebrow">ESTIMATE ${session.index+1} — RESULT</div><div class="result-icon">${points>=800?'✦':'≈'}</div><h2 class="center">+${points.toLocaleString('en-GB')} points</h2><div class="reveal-grid"><div><small>YOUR GUESS</small><strong>${guess.toLocaleString('en-GB')}</strong></div><div><small>CORRECT ANSWER</small><strong>${item.answer.toLocaleString('en-GB')}</strong></div></div><p class="center muted">${estimateLabel(guess,item.answer)}</p><p>${item.explain}</p><button id="next" class="primary full">${session.index===numberRounds.length-1?'See results':'Next estimate'} <span>→</span></button>`);el('next').onclick=()=>{session.index++;if(session.index>=numberRounds.length)finish('All estimates completed');else renderRound();};}
+function numbersUI(){
+ const item=precisionRounds[session.fixture][session.index];
+ const hint=item.guidance?'<div class="precision-guidance"><strong>Good to know</strong><p>'+escapeHtml(item.guidance)+'</p></div>':'';
+ roundFrame('<div class="eyebrow">ESTIMATE '+(session.index+1)+' OF 3</div><h2 class="question">'+escapeHtml(item.question)+'</h2>'+hint+
+ '<form id="estimate-form" novalidate><label for="guess" class="field-label">Your estimate ('+escapeHtml(item.unit)+')</label>'+
+ '<input type="text" inputmode="decimal" id="guess" autocomplete="off" placeholder="Enter a number" aria-describedby="estimate-error" required>'+
+ '<div id="estimate-error" class="validation" role="alert"></div><button class="primary full" type="submit">Lock in estimate <span aria-hidden="true">→</span></button></form>'+
+ '<div class="hint">An exact estimate earns 1,000 points. Near misses earn partial credit. The clock pauses while you see each answer.</div>');
+ const input=el('guess');input.focus();
+ el('estimate-form').onsubmit=e=>{
+  e.preventDefault();
+  if(session.done)return;
+  if(session.duration&&Date.now()>=session.deadline){finish("Time's up!");return;}
+  const guess=parsePrecisionGuess(input.value);
+  if(guess===null){el('estimate-error').textContent='Enter a non-negative number using digits and, if needed, a decimal point (for example 1.5).';input.setAttribute('aria-invalid','true');return;}
+  input.setAttribute('aria-invalid','false');
+  const points=scorePrecisionEstimate(guess,item.answer);
+  session.points+=points;
+  session.steps.push({id:item.id,label:item.question,guess,actual:item.answer,points,unit:item.unit});
+  if(session.duration)session.remainingMs=Math.max(0,session.deadline-Date.now());
+  stopTimer(); // Feedback reading does not consume thinking time.
+  showEstimate(points,item,guess);
+ };
+}
+function showEstimate(points,item,guess){
+ const display=(n)=>n.toLocaleString('en-GB',{maximumFractionDigits:5});
+ roundFrame('<div class="eyebrow">ESTIMATE '+(session.index+1)+' — RESULT</div><div class="result-icon">'+(points>=800?'✦':'≈')+'</div>'+
+ '<h2 class="center">+'+points.toLocaleString('en-GB')+' points</h2>'+
+ '<div class="reveal-grid"><div><small>YOUR GUESS</small><strong>'+display(guess)+' '+escapeHtml(item.unit)+'</strong></div>'+
+ '<div><small>REFERENCE ANSWER</small><strong>'+display(item.answer)+' '+escapeHtml(item.unit)+'</strong></div></div>'+
+ '<p class="center muted">'+escapeHtml(estimateLabel(guess,item.answer))+'</p><p>'+escapeHtml(item.explanation)+'</p>'+
+ '<p class="precision-source"><a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(item.sourceUrl)+'">Reference: '+escapeHtml(item.source)+' ↗</a></p>'+
+ '<button id="next" class="primary full">'+(session.index===2?'See results':'Next estimate')+' <span aria-hidden="true">→</span></button>');
+ const clock=el('clock');if(clock)clock.setAttribute('aria-label','Timer paused during feedback');
+ el('next').onclick=()=>{
+  session.index++;
+  if(session.index>=3){finish('All estimates completed');return;}
+  if(session.duration){session.deadline=Date.now()+session.remainingMs;if(session.remainingMs<=0){finish("Time's up!");return;}}
+  renderRound();if(session.duration)startTicker();
+ };
+}
 function triviaUI(){const item=currentItem();roundFrame(`<div class="eyebrow">MATCH ALL THREE ANSWERS</div><h2 class="question">${item.prompt}</h2><form id="alloc-form"><div class="matching-list">${item.questions.map((q,i)=>`<div class="match-row"><label for="match-${i}">${escapeHtml(q)}</label><select id="match-${i}" required><option value="">Choose an answer…</option>${item.answers.map(a=>`<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('')}</select></div>`).join('')}</div><div id="alloc-error" class="validation" role="alert"></div><button class="primary full" type="submit">Check allocations <span>→</span></button></form><div class="hint">Each answer can be assigned only once. All three must be filled.</div>`);el('alloc-form').onsubmit=e=>{e.preventDefault();const answers=item.questions.map((_,i)=>el(`match-${i}`).value);if(new Set(answers).size!==answers.length){el('alloc-error').textContent='Use each answer only once.';return;}const result=evaluateAllocation(answers,item.correct);session.points=result.points;session.steps=item.questions.map((q,i)=>({label:q,answer:answers[i],correct:item.correct[i],points:answers[i]===item.correct[i]?1:0}));finish('All answers allocated');};}
 function rankingUI(){const item=currentItem();if(!session.order.length)session.order=[...item.items];roundFrame(`<div class="eyebrow">MOVE ITEMS INTO ORDER</div><h2 class="question">${item.prompt}</h2><p class="muted">Top = first · Bottom = last</p><div class="rank-list" id="rank-list">${session.order.map((name,i)=>`<div class="rank-row"><span class="rank-num">${i+1}</span><strong>${escapeHtml(name)}</strong><div class="rank-actions"><button type="button" data-move="${i},-1" ${i===0?'disabled':''} aria-label="Move ${escapeHtml(name)} up">↑</button><button type="button" data-move="${i},1" ${i===session.order.length-1?'disabled':''} aria-label="Move ${escapeHtml(name)} down">↓</button></div></div>`).join('')}</div><button id="rank-submit" class="primary full">Submit order <span>→</span></button><div class="hint">Tap the arrow controls to reorder; no dragging required.</div>`);document.querySelectorAll('[data-move]').forEach(btn=>btn.onclick=()=>{const [i,delta]=btn.dataset.move.split(',').map(Number);const next=i+delta;[session.order[i],session.order[next]]=[session.order[next],session.order[i]];rankingUI();});el('rank-submit').onclick=()=>{const result=scoreRanking(session.order,item.correct);session.points=result.points;session.steps=[{label:'Ranking',...result,order:[...session.order],correct:item.correct}];finish('Order submitted');};}
 function finish(reason,restored=false){if(!session||session.done)return;stopTimer();session.done=true;const s=session;
@@ -150,11 +194,14 @@ if(s.mode==='words')s.points=wordScore().points;const bestKey=`puzzle-lab:${s.mo
   breakdown+=`<div class="round-calculation"><strong>Final calculation</strong><p>${result.base/10} letters × 10 = ${result.base} base points</p><p>Golden letter ${escapeHtml(currentItem().gold)} used ${result.gold} times → multiplier ×${result.multiplier}</p><strong>${result.base.toLocaleString('en-GB')} × ${result.multiplier} = ${result.points.toLocaleString('en-GB')} points</strong></div>`;
  }
 
- if(s.mode==='numbers')breakdown=s.steps.map((x,i)=>`<div class="breakdown-row"><span>Estimate ${i+1}: ${x.guess.toLocaleString('en-GB')} / ${x.actual.toLocaleString('en-GB')}</span><b>+${x.points}</b></div>`).join('');
+ if(s.mode==='numbers'){
+  s.structuredResult=buildPrecisionResult({fixture:s.fixture,steps:s.steps,startedAt:s.started,finishedAt:Date.now(),completionReason:reason,durationSeconds:s.duration});
+  breakdown=s.steps.map((x,i)=>`<div class="breakdown-row"><span>Estimate ${i+1}: ${x.guess.toLocaleString('en-GB')} / ${x.actual.toLocaleString('en-GB')} ${escapeHtml(x.unit)}</span><b>+${x.points}</b></div>`).join('');
+ }
  if(s.mode==='trivia')breakdown=s.steps.map(x=>`<div class="breakdown-row"><span>${escapeHtml(x.label)}<small>Answer: ${escapeHtml(x.correct)}</small></span><b>${x.points?'✓':'✕'}</b></div>`).join('');
  if(s.mode==='ranking'){const x=s.steps[0];breakdown=`<div class="breakdown-row"><span>Correct positions</span><b>${x.correctPlaces} / 5</b></div><div class="breakdown-row"><span>Total position error</span><b>${x.displacement}</b></div><div class="correct-order">Correct order: ${x.correct.map(escapeHtml).join(' → ')}</div>`;}
  shell(`<div class="back-row"><a href="#/words" class="back-link">← Golden Acrostic</a></div><section class="results"><div class="eyebrow">${labels[s.mode].toUpperCase()} · ${s.mode==='words'?(s.attemptMode==='daily'?'DAILY CHALLENGE':'PRACTICE'):`CHALLENGE ${s.fixture+1}`}</div><div class="result-icon">✦</div><h1>Round complete.</h1><p>${escapeHtml(reason)}</p><div class="score-card"><small>YOUR SCORE</small><strong>${s.points.toLocaleString('en-GB')}</strong><span>${s.mode==='words'?(s.attemptMode==='daily'?'TODAY’S FINAL SCORE':'PRACTICE · NOT SCORED DAILY'):(s.points>prior?'NEW CHALLENGE BEST':'CHALLENGE BEST '+prior.toLocaleString('en-GB'))}</span></div></section><section class="panel"><h2>Score breakdown</h2>${breakdown||'<p>No answers were submitted.</p>'}<div class="results-actions"><button class="primary full" id="again">${s.mode==='words'?(s.attemptMode==='daily'?'Back to Golden Acrostic':'Play practice again'):'Play another challenge'} <span>→</span></button><button class="secondary full" id="copy-result">Copy shareable result</button></div>${s.mode==='words'?'':'<div class="fineprint">Sample content and scores are experimental.</div>'}</section>`);
- el('again').onclick=()=>s.mode==='words'&&s.attemptMode==='practice'?beginPractice():startScreen(s.mode);el('copy-result').onclick=async()=>{const share=`Golden Acrostic · ${s.attemptMode==='daily'?'Daily '+(dailyRecord?.day||utcDay()):'Practice'}\n${s.points} points\nFive words · 90 seconds`;try{await navigator.clipboard.writeText(share);el('copy-result').textContent='Copied!';}catch{el('copy-result').textContent='Copy unavailable in this browser';}};
+ el('again').onclick=()=>s.mode==='words'&&s.attemptMode==='practice'?beginPractice():startScreen(s.mode);el('copy-result').onclick=async()=>{const share=s.mode==='numbers'?`Precision Pursuit · Practice challenge ${s.fixture+1}\n${s.points} / 3000 points\n${s.steps.length} of 3 estimates`:`Golden Acrostic · ${s.attemptMode==='daily'?'Daily '+(dailyRecord?.day||utcDay()):'Practice'}\n${s.points} points\nFive words · 90 seconds`;try{await navigator.clipboard.writeText(share);el('copy-result').textContent='Copied!';}catch{el('copy-result').textContent='Copy unavailable in this browser';}};
 }
 function route(){const id=selectedPath();if(id==='collection')home();else if(paths.includes(id))startScreen(id);else wordsStart();}
 async function loadDictionary(){try{const [res,blocked,manifest]=await Promise.all([fetch('/data/dictionary.json'),fetch('/data/blocked_words.json'),fetch('/data/dictionary_manifest.json')]);if(!res.ok||!blocked.ok||!manifest.ok)throw Error('Could not load dictionary');dictionary=new Set(await res.json());blockedWords=new Set((await blocked.json()).blocked);blockedWords.forEach(word=>dictionary.delete(word));dictionaryManifest=await manifest.json();}catch(e){console.error('Golden Acrostic word list unavailable',e);dictionary=new Set();}}
