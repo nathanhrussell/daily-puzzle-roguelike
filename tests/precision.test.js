@@ -1,0 +1,27 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {scorePrecisionEstimate,parsePrecisionGuess,buildPrecisionResult} from '../src/precision-logic.js';
+import {precisionRounds,precisionQuestionCount,validatePrecisionRounds} from '../src/precision-content.js';
+test('fixed pilot bank has six complete distinct rounds',()=>{
+ assert.equal(validatePrecisionRounds(),true);assert.equal(precisionQuestionCount,18);
+ assert.equal(new Set(precisionRounds.flat().map(q=>q.id)).size,18);
+});
+test('proportional curve is symmetric for multiplicative errors',()=>{
+ assert.equal(scorePrecisionEstimate(100,100),1000);
+ assert.equal(scorePrecisionEstimate(50,100),scorePrecisionEstimate(200,100));
+ assert.equal(scorePrecisionEstimate(54,60),scorePrecisionEstimate(5.4e6,6e6));
+ assert.equal(scorePrecisionEstimate(0,100),0);
+ assert.ok(scorePrecisionEstimate(90,100)>scorePrecisionEstimate(50,100));
+ assert.throws(()=>scorePrecisionEstimate(-1,100));
+ assert.throws(()=>scorePrecisionEstimate(1,0));
+});
+test('numeric input has explicit decimal and empty rejection rules',()=>{
+ for(const raw of ['',' ','1,5','1e9','-1','Infinity'])assert.equal(parsePrecisionGuess(raw),null);
+ assert.equal(parsePrecisionGuess('0'),0);assert.equal(parsePrecisionGuess('1.62'),1.62);
+ assert.equal(parsePrecisionGuess('10000'),10000);
+});
+test('result snapshot sums all submitted estimates',()=>{
+ const result=buildPrecisionResult({fixture:2,steps:[{id:'PP-01',guess:110,actual:100,points:867}],startedAt:0,finishedAt:1000,completionReason:'Time expired',durationSeconds:90});
+ assert.equal(result.schema,'precision-pursuit-result/v0.1');assert.equal(result.finalScore,867);
+ assert.equal(result.estimates[0].questionId,'PP-01');
+});
