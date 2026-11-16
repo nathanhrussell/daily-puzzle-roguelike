@@ -80,3 +80,14 @@
 .words-mode .word-instructions p+p{margin-top:9px}
 .words-mode .word-instructions{line-height:1.55}
 @media(min-width:601px){.words-mode .game-panel{max-width:800px}}
+
+/* Precision Pursuit exploratory v0.1. Scoped to Numbers only. */
+.precision-guidance{background:#102f35;border:1px solid #427f87;border-radius:14px;padding:15px 17px;margin:-8px 0 23px}
+.precision-guidance strong{color:#a8efe3;font-size:13px}
+.precision-guidance p{margin:7px 0 0;color:#d5e9e8;font-size:14px;line-height:1.6}
+.precision-source{font-size:12px;line-height:1.5}
+.precision-source a{color:#a7e4da;text-decoration:underline;text-underline-offset:3px}
+.precision-source a:focus-visible{outline:3px solid #a7e4da;outline-offset:3px}
+#estimate-form input[aria-invalid=true]{border-color:#ff9e96}
+#estimate-form input{font-variant-numeric:tabular-nums}
+@media(max-width:600px){.precision-guidance{padding:12px;margin-bottom:18px}.precision-guidance p{font-size:13px}}
