@@ -49,3 +49,20 @@ The version and checksums are recorded in `data/dictionary_manifest.json`. The g
 Run `npm test` before playtesting. The tests cover scoring, word validation, source-dictionary hashes, reported omissions, reviewed exclusions, the thirty challenges, practice isolation, persisted daily state and the integration result schema. A **manual** sign-off is still required for responsive layout, keyboard/tab flow, timer/early finish, refresh-and-resume, completed-result display, mobile touch controls and general enjoyability. Automated tests do not fully simulate browser interaction.
 
 Other three games are preserved as experimental prototypes only. Their scoring rules are not certified or balanced against Golden Acrostic, and future combined daily content is out of scope.
+
+
+## Precision Pursuit — exploratory standalone prototype (feature/precision-pursuit)
+
+This branch adds a playable **Numbers** experiment at **http://localhost:5173/#/numbers**. It does **not** amend Golden Acrostic's rules, content, dictionary or daily-state code.
+
+- Choose one of six fixed challenges, each containing three questions (18 provisional questions covering six editorial categories).
+- Default 90-second shared thinking-time budget; optional 120-second or untimed comparison. The clock pauses during answer reveals and resumes for the next question. Exiting loses progress, and there is no scored daily Numbers attempt yet.
+- Guidance is displayed automatically; the player enters a non-negative number using digits and a dot for decimals (no grouping commas or scientific notation). Units are indicated next to the answer field.
+- Each question scores `Math.round(1000 * (min(guess, answer) / max(guess, answer)) ** 1.5)` for positive guesses, with zero scoring zero. Three questions total up to 3,000 points. This is **provisional**, not a certified balance model.
+- After each submission the player sees a reference answer, points, an error label, a short explanation and the source link. End-of-round results summarise all submitted guesses.
+- The independent functions in `src/precision-logic.js` include `buildPrecisionResult`, producing `precision-pursuit-result/v0.1` with answer snapshots, question identifiers, scores and timing. No roguelike scoring or power-ups are included.
+- `src/precision-content.js` retains source URL and category metadata. These are **playtest editorial candidates**, not a verified commercial publishing catalogue. Approximate reference answers, variable quantities and individual source links require final editorial and licensing review. Rejected proposals such as a non-exact Minecraft sales milestone are not included.
+
+Run `npm test` and `npm run dev` inside WSL (Node.js 20+). The new `tests/precision.test.js` covers scoring invariants, input parsing, content shape and result structure. Manual checks still needed: actual mobile touch/keyboard flow, 90-second timeout while typing, timer pause/resume, early exit, full six-round playthrough, answer-source links and subjective enjoyment. No GitHub Actions.
+
+**Important:** This is a feature-branch experiment, not Precision Pursuit v1.0. No production daily lockout, reliable 21-day content queue, automatic source ingestion or content-feasibility certification has been implemented.
