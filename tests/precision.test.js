@@ -29,6 +29,9 @@ test('result snapshot sums all submitted estimates',()=>{
 test('reviewed playtest questions preserve sourced targets and a varied category mix',()=>{
  const byId=new Map(precisionRounds.flat().map(q=>[q.id,q]));
  assert.equal(byId.get('PP-02').answer,142984);
+ assert.equal(byId.get('PP-08').answer,115);
+ assert.equal(byId.get('PP-16').answer,7.32);
+ assert.ok(!/three or four minutes/i.test(byId.get('PP-15').guidance));
  assert.match(byId.get('PP-02').guidance,/12,750/);
  assert.equal(byId.get('PP-09').answer,32);
  assert.equal(byId.get('PP-11').answer,21.6);
