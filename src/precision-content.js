@@ -6,7 +6,7 @@ export const precisionRounds=[
  [
  q('PP-01','Geography and Space','Approximately how deep is Challenger Deep, in metres?','Mount Everest is roughly 8,850 metres high. Challenger Deep is deeper still.',10935,'metres','NOAA describes Challenger Deep in the Mariana Trench as approximately 10,935 metres deep.','NOAA','https://oceanservice.noaa.gov/facts/oceandepth.html'),
  q('PP-04','People and Society','According to the ITU, how many billion people used the internet in 2026?','The global population exceeds eight billion; internet access is widespread but not universal.',6.3,'billion people','The ITU estimated 6.3 billion internet users, or 76% of the world population, in 2026.','ITU','https://www.itu.int/itu-d/reports/statistics/facts-figures-2026/',1),
- q('PP-16','Everyday Life and Surprising Statistics','Approximately how many times does a human heart beat in one day?','A typical resting heart rate is between 60 and 100 beats per minute.',100000,'beats','Around 100,000 beats is a commonly used daily reference figure; actual totals vary with activity and individual heart rates.','NHLBI','https://www.nhlbi.nih.gov/health/heart/heart-beats'),
+ q('PP-16','Everyday Life and Surprising Statistics','Approximately how many metres wide is a full-sized football goal, between the inside edges of its posts?','Think of the goal used in adult eleven-a-side football, rather than a smaller youth or training goal.',7.32,'metres','The International Football Association Board specifies 7.32 metres (eight yards) between the inside edges of the posts.','IFAB','https://www.theifab.com/laws/latest/the-field-of-play/',2),
  ],
  [
  q('PP-02','Geography and Space','Approximately how many kilometres across is Jupiter at its equator?','Earth is approximately 12,750 kilometres across. Jupiter is the largest planet in our Solar System and considerably wider than Earth.',142984,'kilometres','NASA lists Jupiter’s equatorial diameter as approximately 142,984 kilometres, about eleven times Earth’s.','NASA','https://science.nasa.gov/solar-system/planets/planet-sizes-and-locations-in-our-solar-system/'),
@@ -20,7 +20,7 @@ export const precisionRounds=[
  ],
  [
  q('PP-06','People and Society','What percentage of the world’s population used safely managed drinking-water services in 2024?','“Safely managed” means water from an improved source, accessible when needed and free from contamination.',74,'percent','WHO and UNICEF estimate that about 74% used safely managed drinking-water services in 2024.','WHO / UNICEF','https://washdata.org/'),
- q('PP-08','Science and Nature','Approximately how many litres of blood does a typical adult have?','Blood is only part of your body mass, and volume varies by body size.',5,'litres','Five litres is a common adult reference value; there is no single exact value for everyone.','NHS','https://www.blood.co.uk/why-give-blood/how-blood-is-used/'),
+ q('PP-08','Science and Nature','Approximately how tall is an adult emperor penguin when standing, in centimetres?','Emperor penguins are the tallest living penguin species. Picture one standing beside an adult person.',115,'centimetres','The British Antarctic Survey describes emperor penguins as approximately 115 centimetres tall. Individual birds vary.','British Antarctic Survey','https://legacy.bas.ac.uk/about_antarctica/wildlife/birds/penguins/index.php'),
  q('PP-11','History','Approximately how many hours did the Apollo 11 lunar module remain on the Moon?','Armstrong and Aldrin made one moonwalk, but their module remained on the surface much longer.',21.6,'hours','NASA records a lunar-surface stay of 21 hours and 36 minutes, equal to 21.6 hours.','NASA','https://www.nasa.gov/history/apollo-11-mission-overview/',1),
  ],
  [
@@ -30,7 +30,7 @@ export const precisionRounds=[
  ],
  [
  q('PP-14','Culture and Pop Culture','How many Oscars did Titanic win at the 1998 Academy Awards?','It received 14 nominations and was one of the most successful Oscar films.',11,'awards','Titanic won eleven Academy Awards at the 1998 ceremony.','Academy Awards','https://www.oscars.org/oscars/ceremonies/1998'),
- q('PP-15','Culture and Pop Culture','Approximately how many seconds long is Queen’s original recording of Bohemian Rhapsody?','It was unusually long for a hit single in the 1970s, when many radio songs ran for about three or four minutes.',355,'seconds','The original recording lasts about five minutes and 55 seconds (355 seconds), unusually long for a 1970s single.','Official Charts','https://www.officialcharts.com/node/401170/'),
+ q('PP-15','Culture and Pop Culture','Approximately how many seconds long is Queen’s original recording of Bohemian Rhapsody?','The original single was notably long for a chart hit when released in 1975.',355,'seconds','The original recording lasts about five minutes and 55 seconds (355 seconds), unusually long for a 1970s single.','Official Charts','https://www.officialcharts.com/node/401170/'),
  q('PP-18','Everyday Life and Surprising Statistics','Approximately how many litres of water flow from a conventional US showerhead in one minute, using the EPA reference?','Water-saving showerheads generally use less than conventional models.',9.46,'litres per minute','The EPA’s conventional reference is 2.5 US gallons per minute, or around 9.46 litres.','US EPA','https://www.epa.gov/watersense/showerheads',2),
  ]
 ];
