@@ -25,3 +25,15 @@ test('result snapshot sums all submitted estimates',()=>{
  assert.equal(result.schema,'precision-pursuit-result/v0.1');assert.equal(result.finalScore,867);
  assert.equal(result.estimates[0].questionId,'PP-01');
 });
+
+test('reviewed playtest questions preserve sourced targets and a varied category mix',()=>{
+ const byId=new Map(precisionRounds.flat().map(q=>[q.id,q]));
+ assert.equal(byId.get('PP-02').answer,142984);
+ assert.match(byId.get('PP-02').guidance,/12,750/);
+ assert.equal(byId.get('PP-09').answer,32);
+ assert.equal(byId.get('PP-11').answer,21.6);
+ assert.equal(byId.get('PP-15').answer,355);
+ assert.equal(byId.get('PP-17').answer,35);
+ assert.equal(new Set(precisionRounds.flat().map(q=>q.category)).size,6);
+ for(const q of precisionRounds.flat())assert.ok(q.sourceUrl.startsWith('https://'));
+});
